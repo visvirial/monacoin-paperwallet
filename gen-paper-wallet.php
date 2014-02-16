@@ -7,8 +7,8 @@ define('GENERATOR_SCRIPT', './gen-wallet-addr.sh');
 define('FONT_PATH', './SourceCodePro-Regular.ttf');
 
 $version_bytes = array(
-	'MONA' => '32',
-	'BTC'  => '00',
+	'MONA' => 50,
+	'BTC'  => 0,
 );
 
 if($argc < 3){

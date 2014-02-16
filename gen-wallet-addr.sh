@@ -9,6 +9,8 @@
 base58=({1..9} {A..H} {J..N} {P..Z} {a..k} {m..z})
 bitcoinregex="^[$(printf "%s" "${base58}")]{34}$"
 
+version_byte=0
+
 decodeBase58() {
     local s=$1
     for i in {0..57}
@@ -30,7 +32,7 @@ checksum() {
     xxd -p -r <<<"$1" |
     openssl dgst -sha256 -binary 2>/dev/null |
     openssl dgst -sha256 -binary 2>/dev/null |
-    xxd -p -c 80 |
+    xxd -p -c $(printf "%02X" $(expr 128 + $version_byte)) |
     head -c 8
 }
 
@@ -47,36 +49,35 @@ checkBitcoinAddress() {
 hash160() {
     openssl dgst -sha256 -binary 2>/dev/null |
     openssl dgst -rmd160 -binary 2>/dev/null |
-    xxd -p -c 80
+    xxd -p -c $(printf "%02X" $(expr 128 + $version_byte))
 }
 
-# hash160ToAddress HASH160 VERSION_BYTE
+# hash160ToAddress HASH160
 hash160ToAddress() {
-    printf "%34s\n" "$(encodeBase58 "$2$1$(checksum "$2$1")")" |
+    printf "%34s\n" "$(encodeBase58 "$(printf "%02X" $version_byte)$1$(checksum "$(printf "%02X" $version_byte)$1")")" |
     sed "y/ /1/"
 }
 
 hash256ToAddress() {	
 	#printf "80$1$(checksum "80$1")"
-    printf "%34s\n" "$(encodeBase58 "80$1$(checksum "80$1")")" |
+    printf "%34s\n" "$(encodeBase58 "$(printf "%02X" $(expr 128 + $version_byte))$1$(checksum "$(printf "%02X" $(expr 128 + $version_byte))$1")")" |
     sed "y/ /1/"
 }
 
-# publicKeyToAddress VERSION_BYTE
+# publicKeyToAddress
 publicKeyToAddress() {
     hash160ToAddress $(
     openssl ec -pubin -pubout -outform DER 2>/dev/null |
     tail -c 65 |
     hash160
-    ) $1
+    )
 }
 
 privateKeyToWIF() {
     hash256ToAddress $(openssl ec -text -noout -in data.pem 2>/dev/null | head -5 | tail -3 | fmt -120 | sed 's/[: ]//g')
 }
 
-# genWalletAddr VERSION_BYTE
-#   @param VERSION_BYTE version byte for Base58Check encoding in HEXADECIMAL.
+# genWalletAddr
 genWalletAddr() {
 	openssl ecparam -genkey -name secp256k1 | tee data.pem &>/dev/null
 	privkey_raw=$(openssl ec -text -noout -in data.pem 2>/dev/null | head -5 | tail -3 | fmt -120 | sed 's/[: ]//g')
@@ -89,8 +90,10 @@ genWalletAddr() {
 
 if [ $# -le 0 ]; then
 	echo "Usage: $0 VERSION_BYTE"
+	echo -e "\tVERSION_BYTE version byte in decimal."
 	exit 1
 fi
 
-genWalletAddr $1
+version_byte=$1
+genWalletAddr
 
