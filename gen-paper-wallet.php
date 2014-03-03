@@ -90,8 +90,8 @@ function generate_back($outfile, $privkey_wif){
 
 var_dump($keypair);
 
-generate_front('front.png', $keypair->address, $amount);
-generate_back('back.png', $keypair->privkey->wif, $amount);
+generate_front(strtolower($symbol).'-'.$keypair->address.'-front.png', $keypair->address, $amount);
+generate_back(strtolower($symbol).'-'.$keypair->address.'-back.png', $keypair->privkey->wif, $amount);
 
 
 
