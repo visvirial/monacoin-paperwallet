@@ -44,9 +44,11 @@ function generate_front($outfile, $address='MMonatrZw9NzoFCkV9LX9yB7vE9rDbtSab',
 	$im = imagecreatefrompng(strtolower($symbol)."coin/".strtolower($symbol)."coin-paperwallet-template-front.png");
 	// Create color.
 	$black = imagecolorallocate($im, 0, 0, 0);
-	// Draw amount.
-	$amount_str = number_format($amount);
-	imagettftext($im, 96, 0, 1022, 980, $black, FONT_PATH, 'M'.$amount_str);
+	// Draw amount if positive.
+	if($amount > 0){
+		$amount_str = number_format($amount);
+		imagettftext($im, 96, 0, 1022, 980, $black, FONT_PATH, 'M'.$amount_str);
+	}
 	// Draw address.
 	imagettftext($im, 64, 0, 90, 1220, $black, FONT_PATH, $address);
 	// Create QR code image.
