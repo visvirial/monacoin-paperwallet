@@ -90,7 +90,9 @@ function generate_back($outfile, $privkey_wif){
 	imagepng($im, $outfile);
 }
 
-var_dump($keypair);
+echo 'Wallet address: '.$keypair->address."\n";
+echo 'Private key (raw): '.$keypair->privkey->raw."\n";
+echo 'Private key (WIF): '.$keypair->privkey->wif."\n";
 
 generate_front(strtolower($symbol).'-'.$keypair->address.'-front.png', $keypair->address, $amount);
 generate_back(strtolower($symbol).'-'.$keypair->address.'-back.png', $keypair->privkey->wif, $amount);
