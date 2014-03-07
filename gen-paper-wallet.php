@@ -52,12 +52,12 @@ function generate_front($outfile, $address='MMonatrZw9NzoFCkV9LX9yB7vE9rDbtSab',
 	// Draw amount if positive.
 	if($amount > 0){
 		$amount_str = number_format($amount);
-		imagettftext($im, 96, 0, 1022, 980, $black, FONT_PATH, 'M'.$amount_str);
+		imagettftext($im, 96, 0, 1022, 980, $black, FONT_PATH, strtoupper(substr($symbol, 0, 1)).$amount_str);
 	}
 	// Draw address.
 	imagettftext($im, 64, 0, 90, 1220, $black, FONT_PATH, $address);
 	// Create QR code image.
-	QRcode::png($symbol2name[$symbol].':'.$address.($amount>0?'?amount='.$amount:''), 'address-qr.png', QR_ECLEVEL_L, 10);
+	QRcode::png(strtolower($symbol2name[$symbol]).':'.$address.($amount>0?'?amount='.$amount:''), 'address-qr.png', QR_ECLEVEL_L, 10);
 	$qr = imagecreatefrompng('address-qr.png');
 	// Draw.
 	$size = getimagesize('address-qr.png');
