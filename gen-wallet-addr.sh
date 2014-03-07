@@ -81,6 +81,10 @@ privateKeyToWIF() {
 genWalletAddr() {
 	openssl ecparam -genkey -name secp256k1 | tee data.pem &>/dev/null
 	privkey_raw=$(openssl ec -text -noout -in data.pem 2>/dev/null | head -5 | tail -3 | fmt -120 | sed 's/[: ]//g')
+	if [[ ! $privkey_raw =~ ^[0-9a-f]{64}$ ]]; then
+		# FIXME: OpenSSL occasionally appends 00 to the front and it results a wrong WIF.
+		return 1
+	fi
 	privkey_wif=$(privateKeyToWIF)
 	wallet_addr=$(openssl ec -pubout < data.pem 2>/dev/null | publicKeyToAddress $1)
 	rm data.pem
@@ -95,5 +99,10 @@ if [ $# -le 0 ]; then
 fi
 
 version_byte=$1
-genWalletAddr
+while true; do
+	genWalletAddr
+	if [ $? -eq 0 ]; then
+		break
+	fi
+done
 
