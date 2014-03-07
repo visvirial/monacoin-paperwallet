@@ -11,6 +11,11 @@ $version_bytes = array(
 	'BTC'  => 0,
 );
 
+$symbol2name = array(
+	'MONA' => 'Monacoin',
+	'BTC' => 'Bitcoin',
+);
+
 if($argc < 3){
 	echo "Usage: {$argv[0]} (";
 	$first = true;
@@ -39,9 +44,9 @@ $tmp = exec(GENERATOR_SCRIPT." {$vbyte}");
 $keypair = json_decode($tmp);
 
 function generate_front($outfile, $address='MMonatrZw9NzoFCkV9LX9yB7vE9rDbtSab', $amount=1234){
-	global $symbol;
+	global $symbol, $symbol2name;
 	// Load the template PNG image.
-	$im = imagecreatefrompng(strtolower($symbol)."coin/".strtolower($symbol)."coin-paperwallet-template-front.png");
+	$im = imagecreatefrompng(strtolower($symbol2name[$symbol])."/".strtolower($symbol2name[$symbol])."-paperwallet-template-front.png");
 	// Create color.
 	$black = imagecolorallocate($im, 0, 0, 0);
 	// Draw amount if positive.
@@ -52,7 +57,7 @@ function generate_front($outfile, $address='MMonatrZw9NzoFCkV9LX9yB7vE9rDbtSab',
 	// Draw address.
 	imagettftext($im, 64, 0, 90, 1220, $black, FONT_PATH, $address);
 	// Create QR code image.
-	QRcode::png('monacoin:'.$address.'?amount='.$amount, 'address-qr.png', QR_ECLEVEL_L, 10);
+	QRcode::png($symbol2name[$symbol].':'.$address.($amount>0?'?amount='.$amount:''), 'address-qr.png', QR_ECLEVEL_L, 10);
 	$qr = imagecreatefrompng('address-qr.png');
 	// Draw.
 	$size = getimagesize('address-qr.png');
@@ -64,9 +69,9 @@ function generate_front($outfile, $address='MMonatrZw9NzoFCkV9LX9yB7vE9rDbtSab',
 }
 
 function generate_back($outfile, $privkey_wif){
-	global $symbol;
+	global $symbol, $symbol2name;
 	// Load the template PNG image.
-	$im = imagecreatefrompng(strtolower($symbol)."coin/".strtolower($symbol)."coin-paperwallet-template-back.png");
+	$im = imagecreatefrompng(strtolower($symbol2name[$symbol])."/".strtolower($symbol2name[$symbol])."-paperwallet-template-back.png");
 	// Create color.
 	$black = imagecolorallocate($im, 0, 0, 0);
 	// Draw private key.
